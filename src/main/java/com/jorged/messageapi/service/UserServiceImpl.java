@@ -31,10 +31,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(String email) {
+
         return userList.stream()
                 .filter(user -> user.getEmail().contentEquals(email))
                 .findFirst()
-                .get();
+                .orElse(null);
+
     }
 
 }

@@ -5,10 +5,10 @@ import com.jorged.messageapi.model.User;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class PasswordMatcherValidator implements ConstraintValidator<ValidPassword, User> {
+public class PasswordMatcherValidator implements ConstraintValidator<PasswordsMatch, User> {
 
     @Override
-    public void initialize(ValidPassword password) {
+    public void initialize(PasswordsMatch password) {
 
     }
 
