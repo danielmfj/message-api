@@ -5,33 +5,40 @@
 
     <head>
         <title>Simple Message Board - Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link href="/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
     </head>
     <body>
-
-    <div th:if="${param.error}">
-        Invalid username and password.
+    <div class="jumbotron text-center">
+        <h1>Simple Message Board</h1>
     </div>
+    <div class="container col-md-4">
+        <div th:if="${param.error}">
+            Invalid username and password.
+        </div>
 
-    <div th:if="${param.logout}">
-        You have been logged out.
+        <div th:if="${param.logout}">
+            You have been logged out.
+        </div>
+
+        <form th:action="@{/login}" method="POST">
+            <div>
+                <label th:text="#{label.user.email}">username</label>
+                <input type="text" name="email" class="pull-right"/>
+            </div>
+            <br/>
+            <div>
+                <label th:text="#{label.user.password}">password</label>
+                <input type="password" name="password" class="pull-right"/>
+            </div>
+            <br/>
+            <div class="pull-right">
+                <a th:href="@{/signup}" th:text="#{label.form.signupLink}">sign-up</a>&nbsp;<input type="submit" value="Sign In"/>
+            </div>
+        </form>
     </div>
-
-    <form th:action="@{/login}" method="post">
-        <div>
-            <label th:text="#{label.user.email}">username</label>
-            <input type="text" name="username"/>
-        </div>
-        <div>
-            <label th:text="#{label.user.password}">password</label>
-            <input type="password" name="password"/>
-        </div>
-        <div>
-            <input type="submit" value="Sign In"/>
-        </div>
-    </form>
-
-    <a th:href="@{/signup.html}" th:text="#{label.form.signupLink}">sign-up</a>
-
     </body>
 </html>
 
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js"></script>
