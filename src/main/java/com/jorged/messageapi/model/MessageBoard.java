@@ -26,31 +26,6 @@ public class MessageBoard {
         userList = new ArrayList<>();
         messages = new HashMap<>();
         messageIdGenerator = new AtomicInteger();
-
-        createTestUsers();
-    }
-
-    private void createTestUsers() {
-        User user = new User();
-        user.setFirstName("Tester");
-        user.setLastName("McTest");
-        user.setEmail("test@test.com");
-        user.setPassword("Test12345");
-        user.setValidatePassword(user.getPassword());
-
-        userList.add(user);
-
-        user.setFirstName("Testy");
-        user.setLastName("McTesty");
-        user.setEmail("testy@test.com");
-
-        userList.add(user);
-
-        user.setFirstName("Test1");
-        user.setLastName("McTest1");
-        user.setEmail("test1@test.com");
-
-        userList.add(user);
     }
 
 }

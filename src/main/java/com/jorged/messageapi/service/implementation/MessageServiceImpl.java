@@ -1,15 +1,16 @@
-package com.jorged.messageapi.service;
+package com.jorged.messageapi.service.implementation;
 
 import com.jorged.messageapi.exception.InexistentMessageException;
 import com.jorged.messageapi.exception.UnauthorizedAccessException;
+import com.jorged.messageapi.exception.WrongMessageFormatException;
 import com.jorged.messageapi.model.Message;
 import com.jorged.messageapi.model.MessageBoard;
+import com.jorged.messageapi.service.MessageService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -17,17 +18,26 @@ import java.util.stream.Collectors;
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    private Map<Integer, Message> messageBoard = MessageBoard.getInstance().getMessages();
-    private AtomicInteger messageIdGenerator = MessageBoard.getInstance().getMessageIdGenerator();
+    private final Map<Integer, Message> messageBoard = MessageBoard.getInstance().getMessages();
+    private final AtomicInteger messageIdGenerator = MessageBoard.getInstance().getMessageIdGenerator();
 
     @Override
-    public Boolean addMessage(Message message) {
+    public Boolean addMessage(Message message) throws WrongMessageFormatException, UnauthorizedAccessException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (message.getId() != null) {
             return false;
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!Message.isValid(message)) {
+            throw new WrongMessageFormatException("Invalid message format");
+        }
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnauthorizedAccessException("User not logged in");
+        }
+
         Integer messageId = messageIdGenerator.getAndIncrement();
 
         message.setId(messageId);
@@ -61,10 +71,10 @@ public class MessageServiceImpl implements MessageService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.getName().contentEquals(message.getUserId())) {
-            throw new UnauthorizedAccessException("No access to resource.");
+            throw new UnauthorizedAccessException("Unable to edit message from other user");
         }
 
-        if (!messageBoard.entrySet().stream().anyMatch(m -> m.getKey().equals(message.getId()))) {
+        if (messageBoard.entrySet().stream().noneMatch(m -> m.getKey().equals(message.getId()))) {
             throw new InexistentMessageException("Message doesn't exist");
         }
 
@@ -77,7 +87,14 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void removeMessageById(Integer messageId) {
+    public void removeMessageById(Integer messageId) throws UnauthorizedAccessException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnauthorizedAccessException("User not logged in");
+        }
+
         messageBoard.remove(messageId);
     }
 }

@@ -1,8 +1,9 @@
-package com.jorged.messageapi.service;
+package com.jorged.messageapi.service.implementation;
 
 import com.jorged.messageapi.exception.ExistentUserException;
 import com.jorged.messageapi.model.MessageBoard;
 import com.jorged.messageapi.model.User;
+import com.jorged.messageapi.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -3,6 +3,7 @@ package com.jorged.messageapi.model;
 import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.apache.commons.lang.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -22,5 +23,9 @@ public class Message {
     @NotNull
     @NotEmpty
     String message;
+
+    public static Boolean isValid(Message message) {
+        return StringUtils.isNotEmpty(message.getUserId()) && StringUtils.isNotEmpty(message.getMessage());
+    }
 
 }

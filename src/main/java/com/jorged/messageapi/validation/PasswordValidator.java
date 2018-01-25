@@ -1,5 +1,7 @@
 package com.jorged.messageapi.validation;
 
+import com.jorged.messageapi.annotation.ValidPassword;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.regex.Matcher;

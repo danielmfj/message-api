@@ -7,11 +7,9 @@ import com.jorged.messageapi.exception.WrongMessageFormatException;
 import com.jorged.messageapi.model.Message;
 import com.jorged.messageapi.model.Message.MessageBuilder;
 import com.jorged.messageapi.model.MessageBoard;
+import com.jorged.messageapi.service.implementation.MessageServiceImpl;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -32,14 +30,10 @@ public class MessageServiceTest {
 
     private MessageService messageService = new MessageServiceImpl();
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Before
     public void setUp() {
 
         Instant instant = Instant.now();
-
         MessageBuilder messageBuilder;
 
         for (int i = 1; i <= 10; i++) {
@@ -60,7 +54,8 @@ public class MessageServiceTest {
 
     @Test
     @WithUserDetails(value = "test1@test.com")
-    public void addMessage() {
+    public void addMessage() throws WrongMessageFormatException, UnauthorizedAccessException {
+
         Message message = Message.builder()
                 .userId("test1@test.com")
                 .message("test 123")
@@ -68,25 +63,31 @@ public class MessageServiceTest {
                 .build();
 
         assertTrue(messageService.addMessage(message));
+
     }
 
     @Test
     @WithUserDetails(value = "test1@test.com")
     public void getMessages() {
+
         Map<Integer, Message> messageList = messageService.getMessages();
         assertEquals(messageList, MessageBoard.getInstance().getMessages());
+
     }
 
     @Test
     @WithUserDetails(value = "test1@test.com")
-    public void getMessage() throws InexistentMessageException {
+    public void getMessage() {
+
         Message message = messageService.getMessage(4);
         assertEquals(message, MessageBoard.getInstance().getMessages().get(4));
+
     }
 
     @Test
     @WithUserDetails(value = "test1@test.com")
     public void getMessagesByUser() {
+
         Map<Integer, Message> messagesByUserFromService = messageService.getMessagesByUser("test1@test.com");
         Map<Integer, Message> messagesByUserFromMock = MessageBoard.getInstance().getMessages().entrySet()
                 .stream()
@@ -94,11 +95,13 @@ public class MessageServiceTest {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         assertEquals(messagesByUserFromService, messagesByUserFromMock);
+
     }
 
     @Test
     @WithUserDetails(value = "test1@test.com")
     public void editMessage() throws UnauthorizedAccessException, InexistentMessageException {
+
         Message message = Message.builder()
                 .id(1)
                 .userId("test1@test.com")
@@ -109,6 +112,7 @@ public class MessageServiceTest {
         Message messageFromService = messageService.editMessage(message);
 
         assertEquals(messageFromService, message);
+
     }
 
     @Test
@@ -116,30 +120,50 @@ public class MessageServiceTest {
     public void removeMessageById() throws InexistentMessageException, UnauthorizedAccessException {
 
         Boolean existsBefore = messageService.getMessage(1) != null;
-
         messageService.removeMessageById(1);
-
         Boolean existsAfter = messageService.getMessage(1) != null;
 
         assertNotEquals(existsBefore, existsAfter);
     }
 
-    @Test
-    @Ignore
-    public void editMessageFromOtherAuthor() throws UnauthorizedAccessException {
-        expectedException.expect(UnauthorizedAccessException.class);
+    @Test(expected = UnauthorizedAccessException.class)
+    @WithUserDetails(value = "test1@test.com")
+    public void editMessageFromOtherAuthor() throws UnauthorizedAccessException, InexistentMessageException {
+
+        Message someonesElsesMessage = messageService.getMessagesByUser("test0@test.com").entrySet().stream().findFirst().get().getValue();
+        messageService.editMessage(someonesElsesMessage);
+
     }
 
-    @Test
-    @Ignore
-    public void tryToRetrieveInexistentMessage() throws InexistentMessageException {
-        expectedException.expect(InexistentMessageException.class);
+    @Test(expected = InexistentMessageException.class)
+    @WithUserDetails(value = "test1@test.com")
+    public void tryToEditInexistentMessage() throws InexistentMessageException, UnauthorizedAccessException {
+
+        Message message = messageService.getMessagesByUser("test1@test.com").entrySet().stream().findFirst().get().getValue();
+        message.setId(-1);
+        messageService.editMessage(message);
+
     }
 
-    @Test
-    @Ignore
-    public void addMessageWithWrongFormat() throws WrongMessageFormatException {
-        expectedException.expect(WrongMessageFormatException.class);
+    @Test(expected = WrongMessageFormatException.class)
+    public void addMessageWithWrongFormat() throws WrongMessageFormatException, UnauthorizedAccessException {
+
+        Message message = Message.builder().build();
+        messageService.addMessage(message);
+
+    }
+
+    @Test(expected = UnauthorizedAccessException.class)
+    public void accessMessageBoardWithoutCredentials() throws WrongMessageFormatException, UnauthorizedAccessException {
+
+        Message message = Message.builder()
+                .userId("test1@test.com")
+                .message("test 123")
+                .timestamp(Instant.now())
+                .build();
+
+        messageService.addMessage(message);
+
     }
 
 }

@@ -1,6 +1,6 @@
 package com.jorged.messageapi.configuration;
 
-import com.jorged.messageapi.service.UserDetailsServiceImpl;
+import com.jorged.messageapi.service.implementation.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         //Relaxes security domain
-        http.authorizeRequests().anyRequest().permitAll();
+        http.authorizeRequests().anyRequest().permitAll().and().logout().permitAll();
 
     }
 

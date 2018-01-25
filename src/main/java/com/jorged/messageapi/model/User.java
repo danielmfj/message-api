@@ -1,14 +1,13 @@
 package com.jorged.messageapi.model;
 
-import com.jorged.messageapi.validation.PasswordsMatch;
-import com.jorged.messageapi.validation.ValidEmail;
-import com.jorged.messageapi.validation.ValidPassword;
+import com.jorged.messageapi.annotation.PasswordsMatch;
+import com.jorged.messageapi.annotation.ValidEmail;
+import com.jorged.messageapi.annotation.ValidPassword;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
-
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -37,7 +36,7 @@ public class User {
     @NotEmpty
     private String lastName;
 
-    private List<String> roles = Arrays.asList(ROLE_USER);
-    private List<GrantedAuthority> authorities = Arrays.asList((GrantedAuthority) () -> ROLE_USER);
+    private List<String> roles = Collections.singletonList(ROLE_USER);
+    private List<GrantedAuthority> authorities = Collections.singletonList((GrantedAuthority) () -> ROLE_USER);
 
 }

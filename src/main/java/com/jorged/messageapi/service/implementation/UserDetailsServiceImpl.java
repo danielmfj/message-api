@@ -1,6 +1,7 @@
-package com.jorged.messageapi.service;
+package com.jorged.messageapi.service.implementation;
 
 import com.jorged.messageapi.model.User;
+import com.jorged.messageapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,7 +21,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         User user = userService.getUser(email);
         if (user == null) {
             throw new UsernameNotFoundException("No user found with the following email: " + email);
@@ -29,8 +29,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
                 true, true, true, true, getAuthorities(user.getRoles()));
     }
-
-
 
     private static List<GrantedAuthority> getAuthorities (List<String> roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();

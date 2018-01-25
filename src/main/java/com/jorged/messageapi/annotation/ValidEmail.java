@@ -1,4 +1,6 @@
-package com.jorged.messageapi.validation;
+package com.jorged.messageapi.annotation;
+
+import com.jorged.messageapi.validation.EmailValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -13,11 +15,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, FIELD, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = PasswordMatcherValidator.class)
+@Constraint(validatedBy = EmailValidator.class)
 @Documented
-public @interface PasswordsMatch {
+public @interface ValidEmail {
 
-    String message() default "Passwords don't match. Please check!";
+    String message() default "Invalid email!";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

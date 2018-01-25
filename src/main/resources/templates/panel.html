@@ -7,51 +7,53 @@
         <title>Simple Message Board</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link href="/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
-
         <style>
             .container .list-group { height: 300px; max-height: 300px; overflow-y:scroll; }
             .input-group .hidden { display: none; }
             #messageInput.editing { background-color: orange; }
+            .container .messageElem .edit-buttons.editable { display: none; }
+            .container .messageElem:hover .edit-buttons.editable { display: inline; }
         </style>
-
     </head>
 
     <body>
 
         <div class="jumbotron text-center">
             <h1>Simple Message Board</h1>
-            <h2 th:text="${content.user.firstName} + ' ' + ${content.user.lastName}">user</h2>
-            <form th:action="@{/logout}" method="POST">
-                <input type="submit" value="Sign Out"/>
-            </form>
+            <h2 th:text="${content.user.firstName} + ' ' + ${content.user.lastName}"></h2>
+            <input type="hidden" th:value="${content.user.email}" id="userId"/>
+            <a href="/logout" th:text="#{label.logout}"></a>
         </div>
 
         <div class="container">
             <div class="list-group" style="">
                 <a href="#" class="list-group-item list-group-item-action flex-column align-items-start messageElem"
                    th:each="message : ${content.messages}" th:attr="data-messageid=${message.key}">
-                    <div class="d-flex w-100 justify-content-between">
-                        <small class="text-muted" th:text="${message.value.timestamp} + '/' + ${message.key}">timestamp</small>
-                    </div>
-                    <div class="pull-right" th:if="${content.user.email == message.value.userId}">
+                    <div class="pull-right edit-buttons"
+                         th:if="${content.user.email == message.value.userId}"
+                         th:classappend="${content.user.email == message.value.userId} ? 'editable' : ''">
+
                         <button type="button" class="btn btn-default editMessage">
                             <span class="glyphicon glyphicon-edit"></span>
                         </button>
                         <button type="button" class="btn btn-default deleteMessage">
                             <span class="glyphicon glyphicon-trash"></span>
                         </button>
+
                     </div>
-                    <p class="mb-1" th:text="${message.value.message}">text</p>
-                    <small class="text-muted" th:text="${message.value.userId}">username</small>
+                    <small class="text-muted" th:text="${message.value.userId}"></small>
+                    <p class="mb-1" th:text="${message.value.message}"></p>
+                    <div class="d-flex w-100 justify-content-between">
+                        <small class="text-muted" th:text="${#dates.format(message.value.timestamp, 'HH:mm:ss dd-MMM-yyyy')}"></small>
+                    </div>
                 </a>
             </div>
-
             <div class="input-group">
                 <input type="text" class="form-control" id="messageInput" th:placeholder="#{label.message.placeholder}"/>
                 <span class="input-group-btn">
-                    <button id="submitMessage" class="btn btn-default" type="submit" th:text="#{label.form.submit}">submit</button>
-                    <button id="editMessage" class="btn btn-default hidden" type="submit" th:text="#{label.form.edit}">edit</button>
-                    <button id="cancelEdit" class="btn btn-default hidden" th:text="#{label.form.cancel}">cancel</button>
+                    <button id="submitMessage" class="btn btn-default" type="submit" th:text="#{label.form.submit}"></button>
+                    <button id="editMessage" class="btn btn-default hidden" type="submit" th:text="#{label.form.edit}"></button>
+                    <button id="cancelEdit" class="btn btn-default hidden" th:text="#{label.form.cancel}"></button>
                 </span>
             </div>
         </div>
@@ -67,9 +69,12 @@
             url: "/message/add",
             type: "POST",
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({message: $('#messageInput').val()}),
+            data: JSON.stringify({
+                userId: $('#userId').val(),
+                message: $('#messageInput').val()
+            }),
             success: function(result){
-                location.reload();
+                location.href = "/panel";
             }
         });
     });
@@ -85,7 +90,7 @@
                 url: "/message/remove/" + messageId,
                 type: "POST",
                 success: function(result){
-                    location.reload();
+                    location.href = "/panel";
                 }
             });
         });
@@ -94,12 +99,13 @@
             $('#messageInput').addClass('editing').val(messageText);
             $('#submitMessage').addClass('hidden');
             $('#editMessage, #cancelEdit').removeClass('hidden');
-            $('#editMessage').click(function() {
+            $('#editMessage').unbind().click(function() {
                 $.ajax({
                     url: "/message/edit",
                     type: "POST",
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify({
+                        userId: $('#userId').val(),
                         id: messageId,
                         message: $('#messageInput').val()
                     }),
@@ -108,6 +114,7 @@
                     }
                 });
             });
+
             $('#cancelEdit').click(function(){
                 $('#messageInput').removeClass('editing').val("");
                 $('#submitMessage').removeClass('hidden');

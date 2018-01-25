@@ -1,4 +1,6 @@
-package com.jorged.messageapi.validation;
+package com.jorged.messageapi.annotation;
+
+import com.jorged.messageapi.validation.PasswordValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
