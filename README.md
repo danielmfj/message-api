@@ -1,6 +1,6 @@
-##Simple Message API
+## Simple Message API
 
-###Tech stack
+### Tech stack
 - JDK8
 - Spring Boot
 - Spring Security
@@ -10,7 +10,7 @@
 - Docker
 - Maven Wrapper
 
-###Instructions
+### Instructions
 Check the project out:
 ```
 $ git clone https://github.com/danielmfj/message-api.git
@@ -20,9 +20,9 @@ Run the Maven Wrapper:
 $ cd message-api
 $ ./mvnw spring-boot:run
 ```
-Web-application and API will be accessible from:```[http://localhost:8080/]```
+Web-application and API will be accessible from:```http://localhost:8080/```
 
-###API Endpoints
+### API Endpoints
 ```
 Add message               - {[/message/add],methods=[POST],consumes=[application/json;charset=UTF-8]}
 Edit message              - {[/message/edit],methods=[POST],consumes=[application/json;charset=UTF-8]}
