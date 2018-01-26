@@ -16,9 +16,4 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter {
         registry.addViewController("/logout").setViewName("logout");
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
-
 }

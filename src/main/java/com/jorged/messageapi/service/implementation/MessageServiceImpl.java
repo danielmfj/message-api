@@ -34,7 +34,7 @@ public class MessageServiceImpl implements MessageService {
             throw new WrongMessageFormatException("Invalid message format");
         }
 
-        if (auth == null || !auth.isAuthenticated()) {
+        if (auth == null || !auth.getName().contentEquals(message.getUserId())) {
             throw new UnauthorizedAccessException("User not logged in");
         }
 
@@ -90,9 +90,10 @@ public class MessageServiceImpl implements MessageService {
     public void removeMessageById(Integer messageId) throws UnauthorizedAccessException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Message message = messageBoard.get(messageId);
 
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new UnauthorizedAccessException("User not logged in");
+        if (auth == null || !auth.getName().contentEquals(message.getUserId())) {
+            throw new UnauthorizedAccessException("Unable to remove message from other user");
         }
 
         messageBoard.remove(messageId);

@@ -57,6 +57,11 @@ public class MessageBoardController {
         return messageService.getMessagesByUser(userId);
     }
 
+    @RequestMapping(value = "/messages", method = RequestMethod.GET)
+    public Map<Integer, Message> retrieveMessages() {
+        return messageService.getMessages();
+    }
+
     @RequestMapping(value = "/user/signup", method = RequestMethod.POST)
     public ModelAndView signUpUser(@ModelAttribute("user") @Valid User user, BindingResult result, WebRequest request, Errors errors) throws UnauthorizedAccessException {
 

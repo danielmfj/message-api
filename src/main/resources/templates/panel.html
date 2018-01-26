@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-
+      xmlns:th="http://www.thymeleaf.org">
     <head>
         <title>Simple Message Board</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <link href="/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
         <style>
             .container .list-group { height: 300px; max-height: 300px; overflow-y:scroll; }
             .input-group .hidden { display: none; }
@@ -17,7 +15,6 @@
     </head>
 
     <body>
-
         <div class="jumbotron text-center">
             <h1>Simple Message Board</h1>
             <h2 th:text="${content.user.firstName} + ' ' + ${content.user.lastName}"></h2>
@@ -61,8 +58,7 @@
 </html>
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js"></script>
-
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script>
     $('#submitMessage').click(function() {
         $.ajax({
