@@ -1,5 +1,6 @@
 package com.jorged.messageapi.service;
 
+import com.google.gson.Gson;
 import com.jorged.messageapi.configuration.SecurityTestConfiguration;
 import com.jorged.messageapi.exception.InexistentMessageException;
 import com.jorged.messageapi.exception.UnauthorizedAccessException;
@@ -11,7 +12,9 @@ import com.jorged.messageapi.service.implementation.MessageServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -19,19 +22,38 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SecurityTestConfiguration.class)
 public class MessageServiceTest {
 
-    private MessageService messageService = new MessageServiceImpl();
+    @Autowired
+    private WebApplicationContext context;
+
+    private MockMvc mockMvc;
+    private MessageService messageService;
 
     @Before
     public void setUp() {
+
+        messageService = new MessageServiceImpl();
+
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
 
         Instant instant = Instant.now();
         MessageBuilder messageBuilder;
@@ -49,6 +71,64 @@ public class MessageServiceTest {
             MessageBoard.getInstance().getMessages().put(i, messageBuilder.build());
 
         }
+
+    }
+
+    @Test
+    public void testAddMessageEndpoint() throws Exception {
+
+        Message message = Message.builder()
+            .userId("test1@test.com")
+            .message("test")
+            .build();
+
+        Gson gson = new Gson();
+        String messageRq = gson.toJson(message, Message.class);
+
+        mockMvc.perform(post("/message/add")
+            .with(user("test1@test.com").password("Test12345")).content(messageRq).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void testEditMessageEndpoint() throws Exception {
+
+        Message message = Message.builder()
+            .id(1)
+            .userId("test1@test.com")
+            .message("test message")
+            .build();
+
+        Gson gson = new Gson();
+        String messageRq = gson.toJson(message, Message.class);
+
+        mockMvc.perform(post("/message/edit")
+            .with(user("test1@test.com")
+                .password("Test12345"))
+            .content(messageRq)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void testRemoveMessageEndpoint() throws Exception {
+
+        mockMvc.perform(post("/message/remove/1")
+            .with(user("test1@test.com")
+                .password("Test12345")))
+            .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void testGetAllMessagesEndpoint() throws Exception {
+
+        mockMvc.perform(get("/messages")
+            .with(user("test1@test.com")
+                .password("Test12345")))
+            .andExpect(status().isOk());
 
     }
 
